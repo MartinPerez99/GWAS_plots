@@ -1,0 +1,206 @@
+---
+author: "Martín Pérez Bacelar"
+date: "29/08/23"
+params:
+  titulo: "Error_en_el_código"
+  archivo: NULL
+  id : NULL
+title: "`r params$titulo`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 1
+    number_sections: true
+    theme: united
+    highlight: tango
+---
+
+```{titulo, echo=FALSE}
+titulo <- params$titulo
+```
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = "https://cran.r-project.org")
+library(vroom)
+#install.packages("CMplot")
+library(CMplot)
+#install.packages("qqman")
+library(qqman)
+#install.packages("kableExtra")
+library(kableExtra)
+library(dplyr)
+
+#Annotation libraries
+library(stringr)
+library(rtracklayer)
+```
+
+```{r text, echo=FALSE}
+texto <- ""
+if (id == "F1" || id == "F1_PCA") {
+    texto <- "F1: **Delta Disnea 3m**. Diferencia entre el grado de disnea a los 3 meses y el grado de disnea basal."
+} else if (id == "F2" || id == "F2_PCA") {
+  texto <- "F2: **Delta Disnea 6m**. Diferencia entre el grado de disnea a los 6 meses y el grado de disnea basal."
+}else if (id == "F3" || id == "F3_PCA") {
+  texto <- "F3: **Delta Disnea 12m**. Diferencia entre el grado de disnea a los 12 meses y el grado de disnea basal. "
+}else if (id == "F4" || id == "F4_PCA") {
+  texto <- "F4: **Delta Disnea Acute**. Diferencia entre el valor máximo entre el grado de disnea a los 3 y 6 meses y el grado de disnea basal."
+}else if (id == "F5" || id == "F5_PCA") {
+  texto <- "F5: **Delta Disnea Late**. Diferencia entre el valor máximo entre el grado de disnea a los 6 y 12 meses y el grado de disnea basal."
+}else if (id == "F6" || id == "F6_PCA") {
+  texto <- "F6: **Delta Disnea 3m dicotomizada empeoramiento**. Diferencia entre grado de disnea a los 3 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea ≤ 0; 2=Delta disnea > 0. Evalúa empeoramiento de la disnea a los 3 meses."
+}else if (id == "F7" || id == "F7_PCA") {
+  texto <- "F7: **Delta Disnea 6m dicotomizada empeoramiento**. Diferencia entre grado de disnea a los 6 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea ≤ 0; 2=Delta disnea > 0. Evalúa empeoramiento de la disnea a los 6 meses."
+}else if (id == "F8" || id == "F8_PCA") {
+  texto <- "F8: **Delta Disnea 12m dicotomizada empeoramiento**. Diferencia entre grado de disnea a los 12 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea ≤ 0; 2=Delta disnea > 0. Evalúa empeoramiento de la disnea a los 12 meses."
+}else if (id == "F9" || id == "F9_PCA") {
+  texto <- "F9: **Delta Disnea Acute dicotomizada empeoramiento**. Diferencia entre el valor máximo entre el grado de disnea a los 3 y 6 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea ≤ 0; 2=Delta disnea > 0. Evalúa empeoramiento de la disnea aguda."
+}else if (id == "F10" || id == "F10_PCA") {
+  texto <- "F10: **Delta Disnea Late dicotomizada empeoramiento**. Diferencia entre el valor máximo entre el grado de disnea a los 6 y 12 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea ≤ 0; 2=Delta disnea > 0. Evalúa empeoramiento de la disnea tardía.
+"
+}else if (id == "F11" || id == "F11_PCA") {
+  texto <- "F11: **Delta Disnea 3m dicotomizada mejoría**. Diferencia entre grado de disnea a los 3 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea < 0; 2=Delta disnea ≥ 0. Evalúa mejoría de la disnea a los 3 meses."
+}else if (id == "F12" || id == "F12_PCA") {
+  texto <- "F12: **Delta Disnea 6m dicotomizada mejoría**. Diferencia entre grado de disnea a los 6 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea < 0; 2=Delta disnea ≥ 0. Evalúa mejoría de la disnea a los 6 meses."
+}else if (id == "F13" || id == "F13_PCA") {
+  texto <- "F13: **Delta Disnea 12m dicotomizada mejoría**. Diferencia entre grado de disnea a los 12 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea < 0; 2=Delta disnea ≥ 0. Evalúa mejoría de la disnea a los 12 meses."
+}else if (id == "F14" || id == "F14_PCA") {
+  texto <- "F14: **Delta Disnea Acute dicotomizada mejoría**. Diferencia entre el valor máximo entre el grado de disnea a los 3 y 6 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea < 0; 2=Delta disnea ≥ 0. Evalúa mejoría de la disnea aguda."
+}else if (id == "F15" || id == "F15_PCA") {
+  texto <- "F15: **Delta Disnea Late dicotomizada mejoría**. Diferencia entre el valor máximo entre el grado de disnea a los 6 y 12 meses y el grado de disnea basal; dicotomizado: 1=Delta disnea < 0; 2=Delta disnea ≥ 0. Evalúa mejoría de la disnea tardía."
+}
+
+```
+
+# Fenotipo
+`r texto`
+
+# Manhattan plot
+
+```{r Manhattan,echo=FALSE, warning=FALSE}
+archivo <- params$archivo
+manhattan<-manhattan(archivo, main = "Manhattan Plot", ylim = c(0, 10), cex = 0.6, cex.axis = 0.9,
+          col = c("blue4", "orange3"), suggestiveline = -log10(1e-5) , genomewideline = -log10(5e-8), chrlabs = c(1:22))
+```
+
+# QQplot
+
+```{r QQplot,echo=FALSE}
+archivo <- params$archivo
+z=qnorm(archivo$P/2)
+## calculates lambda
+lambda = round(median(z^2,na.rm=T)/qchisq(0.5,df=1),3)
+qqplot<-qq(archivo$P)
+text(0.5,4, paste("lambda","=",  signif(lambda, digits = 3)) )
+```
+
+# Tabla SNPs significativos
+
+```{r Significativos, echo=FALSE}
+archivo <- params$archivo
+id <- params$id
+umbral=1e-5
+significativos<-subset(archivo, archivo$P < umbral)
+
+all <- significativos[, c("SNP","CHR","BP")]
+colnames(all)[colnames(all) == "SNP"] <- "rsid"
+colnames(all)[colnames(all) == "CHR"] <- "chr"
+colnames(all)[colnames(all) == "BP"] <- "position"
+
+filesig <- paste("C:/Users/marti/Desktop/IDIS/R_cosas/csv/sig_var", id,".csv", sep = "")
+write.table(all,filesig,col.names=T,row.names=F,quote=F,sep=",")
+
+all<-read.csv(filesig,head=T)
+#### Annotation script ####
+
+#download from https://www.gencodegenes.org/human/release_38lift37.html
+gtf<-rtracklayer::import("C:/Users/marti/Desktop/IDIS/R_cosas/gencode.v44.basic.annotation.gtf")
+gene<-as.data.frame(gtf)
+
+all$closest_gene<-NA
+all$position<-as.numeric(as.character(all$position))
+all$min<-all$position-500000
+all$max<-all$position+500000
+
+gene1<-gene[which(gene$type=="exon"),]
+
+for (i in 1:nrow(all)) {
+  
+  tmp<-gene[which( (gene$seqnames==paste("chr",all$chr[i],sep="")) &
+                     ((gene$start<=all$min[i] & gene$end>=all$min[i]) | 
+                        (gene$start<=all$max[i] & gene$end>=all$max[i]) | 
+                        (gene$start>=all$min[i] & gene$end<=all$max[i])) )
+            ,c("gene_name","gene_type","start","end","type","strand")]
+  tmp<-tmp[!duplicated(tmp$gene_name),]
+  tmp<-tmp[which(tmp$gene_type=="protein_coding"),]
+  
+  if(nrow(tmp)>0) {
+    tmp$tss<-NA
+    tmp$tss[which(tmp$strand=="+")]<-tmp$start[which(tmp$strand=="+")]
+    tmp$tss[which(tmp$strand=="-")]<-tmp$end[which(tmp$strand=="-")]
+    
+    tmp$dist<-abs(tmp$tss-all$pos[i])
+    tmp<-tmp[which(tmp$dist==min(tmp$dist)),]
+  }
+  
+  tmp1<-gene1[which( (gene1$seqnames==paste("chr",all$chr[i],sep="")) &
+                       (gene1$start<=all$position[i] & gene1$end>=all$position[i]) )
+              ,c("gene_name","gene_type","start","end","type","strand")]
+  
+  tmp1<-tmp1[which(tmp1$gene_type=="protein_coding"),]
+  
+  if(nrow(tmp1)>0) {
+    all$closest_gene[i]<-paste(tmp1$gene_name[!duplicated(tmp1$gene_name)],collapse="|")
+  } else if(nrow(tmp)>0) {
+    all$closest_gene[i]<-paste(tmp$gene_name[!duplicated(tmp$gene_name)],collapse="|")
+  }
+  rm(tmp)
+}
+
+
+#### Merge ####
+
+merged_table <- merge(significativos, all[, c("chr", "position", "closest_gene")],
+                                         by.x = c("BP", "CHR"), by.y = c("position", "chr"))
+
+if (id %in% c("F1", "F2", "F3", "F4", "F5", "F1_PCA", "F2_PCA", "F3_PCA", "F4_PCA", "F5_PCA")) {
+  merged_table<- merged_table[,c("CHR","BP","SNP","closest_gene","REF","ALT","A1","A1_FREQ","TEST","OBS_CT","BETA","SE","T_STAT","P")]
+  filetable <- paste("C:/Users/marti/Desktop/IDIS/TablaSignif_", params$titulo,".txt", sep = "")
+write.table(merged_table, file = filetable, sep= "\t", quote = FALSE, col.names = TRUE, row.names = F)
+  tabla_formateada <- merged_table %>%
+    arrange(merged_table$P) %>%
+    mutate (P = format(P, scientific = TRUE, digits = 4)) %>%
+    knitr::kable(
+      caption = "SNPs significativos",
+      digits = 2,
+      format.args = list(big.mark = ","),
+      col.names = c("CHR", "BP", "SNP","GENE", "REF", "ALT", "A1", "A1_FREQ", "TEST", "OBS_CT", "BETA", "SE", "T_STAT", "P")
+    ) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) %>%
+    column_spec(1, bold = T, border_right = T)
+
+
+} else {
+  merged_table<- merged_table[,c("CHR","BP","SNP","closest_gene","REF","ALT","A1","A1_FREQ","FIRTH?","TEST","OBS_CT","OR","LOG(OR)_SE","Z_STAT","P")]
+  filetable <- paste("C:/Users/marti/Desktop/IDIS/TablaSignif_", params$titulo,".txt", sep = "")
+write.table(merged_table, file = filetable, sep= "\t", quote = FALSE, col.names = TRUE, row.names = F)
+  tabla_formateada <- merged_table %>%
+    arrange(merged_table$P) %>%
+    mutate (P = format(P, scientific = TRUE, digits = 4)) %>%
+    knitr::kable(
+      caption = "SNPs significativos",
+      digits = 2,
+      format.args = list(big.mark = ","),
+      col.names = c("CHR", "BP", "SNP","GENE", "REF", "ALT", "A1", "A1_FREQ","FIRTH", "TEST", "OBS_CT", "OR", "LOG(OR)_SE", "Z_STAT", "P")
+    ) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) %>%
+    column_spec(1, bold = T, border_right = T)
+
+
+}
+
+
+tabla_formateada
+```
+
